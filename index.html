@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎯 لعبة ترتيب الجمل</title>
+<style>
+body{font-family:"Cairo",sans-serif;background:#f1faee;text-align:center;padding:20px}
+#wordContainer,#answerContainer{margin:20px auto;display:flex;flex-wrap:wrap;justify-content:center;min-height:50px}
+.word{background:#48cae4;color:#fff;margin:5px;padding:10px 15px;border-radius:8px;cursor:pointer;transition:.3s}
+.word:hover{background:#0077b6;transform:scale(1.08)}
+button{margin:6px;padding:10px 18px;border:none;border-radius:10px;background:#0096c7;color:#fff;cursor:pointer}
+button:hover{background:#023e8a}
+#timer{margin:10px;color:#1d3557}
+#score{margin-top:16px;color:#03045e}
+.fade{animation:fade .4s}@keyframes fade{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<h1>🎯 لعبة ترتيب الجمل</h1>
+<div id="timer">⏱️ الوقت المتبقي: <span id="timeLeft">60</span> ثانية</div>
 
+<div id="gameArea">
+  <div id="wordContainer"></div>
+  <div id="answerContainer"></div>
+</div>
+
+<button onclick="checkAnswer()">✅ تأكد من الإجابة</button>
+<button onclick="shuffleWords()">🔄 أعد خلط الكلمات</button>
+<button onclick="showAnswer()">💡 الإجابة الصحيحة</button>
+<button onclick="resetGame()">🔁 إعادة اللعبة</button>
+
+<div id="score">
+  <p>المحاولات: ✅ <span id="successAttempts">0</span> / ❌ <span id="failedAttempts">0</span></p>
+  <p>الإجابات: 🟢 <span id="correctAnswers">0</span> / 🔴 <span id="wrongAnswers">0</span></p>
+</div>
+
+<audio id="clapSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+<audio id="dingSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+<script>
+let sentences=[], idx=0, correctSentence="", words=[];
+let successAttempts=0, failedAttempts=0, correctAnswers=0, wrongAnswers=0;
+let timer=60, tHandle;
+
+// Ladda JSON (relativt – funkar på Pages)
+fetch("./sentences.json?cb=" + Date.now())
+ .then(r=>r.json())
+ .then(d=>{ sentences=d.sentences||[]; start(); })
+ .catch(e=>alert("Fel vid inläsning av meningar: "+e));
+
+function start(){ idx=0; load(); startTimer(); }
+function load(){
+  if(idx>=sentences.length){ alert("🎉 انتهت جميع الجمل!"); resetGame(); return; }
+  correctSentence=sentences[idx];
+  words=shuffle(correctSentence.split(" "));
+  render();
+}
+function render(){
+  const wc=document.getElementById("wordContainer");
+  const ac=document.getElementById("answerContainer");
+  wc.innerHTML=""; ac.innerHTML="";
+  words.forEach(w=>{
+    const el=document.createElement("span");
+    el.textContent=w; el.className="word fade";
+    el.onclick=()=>ac.appendChild(el);
+    wc.appendChild(el);
+  });
+}
+function shuffle(a){return a.sort(()=>Math.random()-0.5);}
+function checkAnswer(){
+  const ac=document.getElementById("answerContainer");
+  const ans=[...ac.children].map(e=>e.textContent).join(" ");
+  if(ans===correctSentence){
+    document.getElementById("clapSound").play();
+    successAttempts++; correctAnswers++; idx++; load();
+  }else{
+    document.getElementById("dingSound").play();
+    failedAttempts++; wrongAnswers++; alert("❌ خطأ، حاول مرة أخرى!");
+  }
+  updateScore();
+}
+function shuffleWords(){ load(); }
+function showAnswer(){ alert("💡 الإجابة الصحيحة:\n\n"+correctSentence); }
+function resetGame(){
+  successAttempts=failedAttempts=correctAnswers=wrongAnswers=0; updateScore();
+  idx=0; load(); startTimer();
+}
+function updateScore(){
+  q("successAttempts").textContent=successAttempts;
+  q("failedAttempts").textContent=failedAttempts;
+  q("correctAnswers").textContent=correctAnswers;
+  q("wrongAnswers").textContent=wrongAnswers;
+}
+function q(id){return document.getElementById(id);}
+function startTimer(){
+  clearInterval(tHandle); let left=timer; q("timeLeft").textContent=left;
+  tHandle=setInterval(()=>{ left--; q("timeLeft").textContent=left;
+    if(left<=0){ clearInterval(tHandle); alert("⏰ انتهى الوقت!"); resetGame(); }
+  },1000);
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🎯 لعبة ترتيب الجمل</title>
+<style>
+body{font-family:"Cairo",sans-serif;background:#f1faee;text-align:center;padding:20px}
+#wordContainer,#answerContainer{margin:20px auto;display:flex;flex-wrap:wrap;justify-content:center;min-height:50px}
+.word{background:#48cae4;color:#fff;margin:5px;padding:10px 15px;border-radius:8px;cursor:pointer;transition:.3s}
+.word:hover{background:#0077b6;transform:scale(1.08)}
+button{margin:6px;padding:10px 18px;border:none;border-radius:10px;background:#0096c7;color:#fff;cursor:pointer}
+button:hover{background:#023e8a}
+#timer{margin:10px;color:#1d3557}
+#score{margin-top:16px;color:#03045e}
+.fade{animation:fade .4s}@keyframes fade{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<h1>🎯 لعبة ترتيب الجمل</h1>
+<div id="timer">⏱️ الوقت المتبقي: <span id="timeLeft">60</span> ثانية</div>
+
+<div id="gameArea">
+  <div id="wordContainer"></div>
+  <div id="answerContainer"></div>
+</div>
+
+<button onclick="checkAnswer()">✅ تأكد من الإجابة</button>
+<button onclick="shuffleWords()">🔄 أعد خلط الكلمات</button>
+<button onclick="showAnswer()">💡 الإجابة الصحيحة</button>
+<button onclick="resetGame()">🔁 إعادة اللعبة</button>
+
+<div id="score">
+  <p>المحاولات: ✅ <span id="successAttempts">0</span> / ❌ <span id="failedAttempts">0</span></p>
+  <p>الإجابات: 🟢 <span id="correctAnswers">0</span> / 🔴 <span id="wrongAnswers">0</span></p>
+</div>
+
+<audio id="clapSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+<audio id="dingSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+<script>
+let sentences=[], idx=0, correctSentence="", words=[];
+let successAttempts=0, failedAttempts=0, correctAnswers=0, wrongAnswers=0;
+let timer=60, tHandle;
+
+// Ladda JSON (relativt – funkar på Pages)
+fetch("./sentences.json?cb=" + Date.now())
+ .then(r=>r.json())
+ .then(d=>{ sentences=d.sentences||[]; start(); })
+ .catch(e=>alert("Fel vid inläsning av meningar: "+e));
+
+function start(){ idx=0; load(); startTimer(); }
+function load(){
+  if(idx>=sentences.length){ alert("🎉 انتهت جميع الجمل!"); resetGame(); return; }
+  correctSentence=sentences[idx];
+  words=shuffle(correctSentence.split(" "));
+  render();
+}
+function render(){
+  const wc=document.getElementById("wordContainer");
+  const ac=document.getElementById("answerContainer");
+  wc.innerHTML=""; ac.innerHTML="";
+  words.forEach(w=>{
+    const el=document.createElement("span");
+    el.textContent=w; el.className="word fade";
+    el.onclick=()=>ac.appendChild(el);
+    wc.appendChild(el);
+  });
+}
+function shuffle(a){return a.sort(()=>Math.random()-0.5);}
+function checkAnswer(){
+  const ac=document.getElementById("answerContainer");
+  const ans=[...ac.children].map(e=>e.textContent).join(" ");
+  if(ans===correctSentence){
+    document.getElementById("clapSound").play();
+    successAttempts++; correctAnswers++; idx++; load();
+  }else{
+    document.getElementById("dingSound").play();
+    failedAttempts++; wrongAnswers++; alert("❌ خطأ، حاول مرة أخرى!");
+  }
+  updateScore();
+}
+function shuffleWords(){ load(); }
+function showAnswer(){ alert("💡 الإجابة الصحيحة:\n\n"+correctSentence); }
+function resetGame(){
+  successAttempts=failedAttempts=correctAnswers=wrongAnswers=0; updateScore();
+  idx=0; load(); startTimer();
+}
+function updateScore(){
+  q("successAttempts").textContent=successAttempts;
+  q("failedAttempts").textContent=failedAttempts;
+  q("correctAnswers").textContent=correctAnswers;
+  q("wrongAnswers").textContent=wrongAnswers;
+}
+function q(id){return document.getElementById(id);}
+function startTimer(){
+  clearInterval(tHandle); let left=timer; q("timeLeft").textContent=left;
+  tHandle=setInterval(()=>{ left--; q("timeLeft").textContent=left;
+    if(left<=0){ clearInterval(tHandle); alert("⏰ انتهى الوقت!"); resetGame(); }
+  },1000);
+}
+</script>
+</body>
+</html>
